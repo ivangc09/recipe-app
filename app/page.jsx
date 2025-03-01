@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { getRecipes } from "../utils/api";
 import RecipeList from "../components/RecipeList";
+import NavBar from "@/components/NavBar";
+import Search from "@/components/Search";
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -22,19 +24,24 @@ export default function Home() {
     setSelectedRecipe(null);
   };
 
+  const steps = selectedRecipe && selectedRecipe.strInstructions
+  ? selectedRecipe.strInstructions.split("\n").filter(step => step.trim() !== "")
+  : [];
+
   return (
     <div className="main-container">
-      <h1 className="">Recetas 🍽️</h1>
+      
+      <NavBar />
       <div className="recipe-search">
         <input
           type="text"
-          placeholder="Buscar receta..."
-          className=""
+          placeholder="Search for recipes..."
+          className="aleo-font"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <button onClick={handleSearch} className="">
-          Buscar
+        <button onClick={handleSearch} className="searchBtn aleo-font">
+          <Search />
         </button>
       </div>
       
@@ -42,14 +49,46 @@ export default function Home() {
         <RecipeList recipes={recipes} onRecipeClick={openModal} />
       </div>
 
-      {/* Modal para mostrar los detalles de la receta */}
       {selectedRecipe && (
         <div className="modal" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content aleo-font" onClick={(e) => e.stopPropagation()}>
             <span className="close" onClick={closeModal}>&times;</span>
-            <h2>{selectedRecipe.strMeal}</h2>
-            <img src={selectedRecipe.strMealThumb} alt={selectedRecipe.strMeal} />
-            <p>{selectedRecipe.strInstructions}</p>
+            
+            <div className="recipe-name">
+              <h2>{selectedRecipe.strMeal}</h2>
+              <img src={selectedRecipe.strMealThumb} alt={selectedRecipe.strMeal} />
+            </div>
+
+            <div className="ingredients-measure">
+              <div className="ingredients">
+                <h3>Ingredients</h3>
+                <ul>
+                  {Object.keys(selectedRecipe)
+                    .filter((key) => key.includes("strIngredient") && selectedRecipe[key])
+                    .map((key) => (
+                      <li key={key}>{selectedRecipe[key]}</li>
+                    ))}
+                </ul>
+              </div>
+
+              <div className="measure">
+                <h3>Measure</h3>
+                <ul>
+                  {Object.keys(selectedRecipe)
+                    .filter((key) => key.includes("strMeasure") && selectedRecipe[key])
+                    .map((key) => (
+                      <li key={key}>{selectedRecipe[key]}</li>
+                    ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="instructions">
+              <h3>Instructions</h3>
+              {steps.map((step, index) => (
+                <p key={index}>{step}</p>
+              ))}
+            </div>
           </div>
         </div>
       )}
