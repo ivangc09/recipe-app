@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { getRecipes } from "../utils/api";
+import { useState, useEffect } from "react";
+import { getRecipes, getRandomRecipe} from "../utils/api";
 import RecipeList from "../components/RecipeList";
 import NavBar from "@/components/NavBar";
 import Search from "@/components/Search";
@@ -11,9 +11,24 @@ export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null); 
 
+  useEffect(() => {
+    const fetchRandomRecipes = async () => {
+      const randomRecipes = [];
+      for (let i = 0; i < 3; i++) {
+        const recipe = await getRandomRecipe();
+        randomRecipes.push(recipe);
+      }
+      setRecipes(randomRecipes);
+    };
+
+    fetchRandomRecipes();
+  }, []);
+
+
   const handleSearch = async () => {
+    if (query.trim() === "") return;
     const results = await getRecipes(query);
-    setRecipes(results);
+    setRecipes(results); 
   };
 
   const openModal = (recipe) => {
